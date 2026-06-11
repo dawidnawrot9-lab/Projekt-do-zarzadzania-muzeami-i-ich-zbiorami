@@ -4,6 +4,7 @@ from tkinter import messagebox
 import tkintermapview
 
 
+
 class MuseumApp:
     def __init__(self, root):
         self.root = root
@@ -91,7 +92,6 @@ class MuseumApp:
         mid_frame.pack_propagate(False)
 
         tk.Label(mid_frame, text="Szczegóły / Formularz", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 15))
-
 
         tk.Label(mid_frame, text="[Miejsce na pola formularza]", fg="gray").pack(pady=50)
 
