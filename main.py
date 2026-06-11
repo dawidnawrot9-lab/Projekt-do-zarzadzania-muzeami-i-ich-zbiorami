@@ -59,18 +59,18 @@ class MuseumApp:
         self.login_frame = ttk.Frame(self.root)
         self.login_frame.pack(expand=True, fill="both", padx=40, pady=40)
 
-        ttk.Label(self.login_frame, text="ARCHIWUM MUZEALNE", font=("Helvetica", 16, "bold"),
+        ttk.Label(self.login_frame, text="LOGOWANIE DO SYSTEMU", font=("Helvetica", 16, "bold"),
                   foreground=self.accent_color).pack(pady=(0, 20))
 
-        ttk.Label(self.login_frame, text="Identyfikator (Login):").pack(anchor="w")
+        ttk.Label(self.login_frame, text="Login:").pack(anchor="w")
         self.entry_login = ttk.Entry(self.login_frame, width=40)
         self.entry_login.pack(pady=(0, 10), fill="x")
 
-        ttk.Label(self.login_frame, text="Kod dostępu (Hasło):").pack(anchor="w")
+        ttk.Label(self.login_frame, text="Hasło:").pack(anchor="w")
         self.entry_haslo = ttk.Entry(self.login_frame, show="*", width=40)
         self.entry_haslo.pack(pady=(0, 20), fill="x")
 
-        ttk.Button(self.login_frame, text="AUTORYZACJA", command=self.login).pack(fill="x")
+        ttk.Button(self.login_frame, text="ZALOGUJ", command=self.login).pack(fill="x")
 
     def login(self):
         login = self.entry_login.get()
@@ -95,7 +95,7 @@ class MuseumApp:
 
         self.notebook.add(self.tab_muzea, text=" MUZEA ")
         self.notebook.add(self.tab_magazyny, text=" MAGAZYNY ZBIORÓW ")
-        self.notebook.add(self.tab_pracownicy, text=" KADRY ")
+        self.notebook.add(self.tab_pracownicy, text=" PRACOWNICY ")
 
         self.build_muzea_tab()
         self.build_magazyny_tab()
