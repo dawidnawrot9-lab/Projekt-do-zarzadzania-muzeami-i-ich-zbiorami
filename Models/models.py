@@ -17,13 +17,14 @@ class Muzeum:
 
 
 class Magazyn:
-    def __init__(self, uid: int, muzeum_id: int, nazwa: str, lokalizacja: str, lat: float, lon: float):
+    def __init__(self, uid: int, muzeum_id: int, nazwa: str, lokalizacja: str, lat: float, lon: float, dziela: str = ""):
         self.id = uid
         self.muzeum_id = muzeum_id
         self.nazwa = nazwa
         self.lokalizacja = lokalizacja
         self.lat = lat
         self.lon = lon
+        self.dziela = dziela
 
     def to_dict(self):
         return {
@@ -32,12 +33,13 @@ class Magazyn:
             "nazwa": self.nazwa,
             "lokalizacja": self.lokalizacja,
             "lat": self.lat,
-            "lon": self.lon
+            "lon": self.lon,
+            "dziela": self.dziela
         }
 
 
 class Pracownik:
-    def __init__(self, uid: int, muzeum_id: int, imie: str, nazwisko: str, lokalizacja: str, lat: float, lon: float):
+    def __init__(self, uid: int, muzeum_id: int, imie: str, nazwisko: str, lokalizacja: str, lat: float, lon: float, stanowisko: str = ""):
         self.id = uid
         self.muzeum_id = muzeum_id
         self.imie = imie
@@ -45,6 +47,7 @@ class Pracownik:
         self.lokalizacja = lokalizacja
         self.lat = lat
         self.lon = lon
+        self.stanowisko = stanowisko
 
     def to_dict(self):
         return {
@@ -54,5 +57,6 @@ class Pracownik:
             "nazwisko": self.nazwisko,
             "lokalizacja": self.lokalizacja,
             "lat": self.lat,
-            "lon": self.lon
+            "lon": self.lon,
+            "stanowisko": self.stanowisko
         }
