@@ -10,28 +10,67 @@ class MuseumApp:
     def __init__(self, root):
         self.root = root
         self.root.title("System Zarządzania Muzeami")
-        self.root.geometry("400x250")
+        self.root.geometry("450x300")
         self.root.resizable(False, False)
         self.data = data_manager.load_data()
+
+        self.bg_main = "#2b2a27"
+        self.bg_panel = "#383633"
+        self.text_color = "#e6e1d5"
+        self.accent_color = "#8b2e2e"
+        self.list_bg = "#42403c"
+
+        self.root.configure(bg=self.bg_main)
+        self.setup_styles()
         self.show_login_screen()
 
+    def setup_styles(self):
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+
+        self.style.configure(".", background=self.bg_main, foreground=self.text_color, font=("Helvetica", 10))
+
+        self.style.configure("TNotebook", background=self.bg_main, borderwidth=0)
+        self.style.configure("TNotebook.Tab", background=self.bg_panel, foreground=self.text_color, padding=[15, 8],
+                             borderwidth=0, font=("Helvetica", 10, "bold"))
+        self.style.map("TNotebook.Tab", background=[("selected", self.accent_color)])
+
+        self.style.configure("TFrame", background=self.bg_main)
+
+        self.style.configure("TLabel", background=self.bg_main, foreground=self.text_color)
+
+        self.style.configure("TButton", background=self.list_bg, foreground=self.text_color, borderwidth=0, padding=6,
+                             font=("Helvetica", 10, "bold"))
+        self.style.map("TButton", background=[("active", self.accent_color)])
+
+        self.style.configure("TEntry", fieldbackground=self.list_bg, foreground="white", borderwidth=0, padding=5)
+
+        self.style.configure("TCombobox", fieldbackground=self.list_bg, background=self.list_bg, foreground="white",
+                             borderwidth=0, padding=5)
+        self.style.map("TCombobox", fieldbackground=[("readonly", self.list_bg)],
+                       selectbackground=[("readonly", self.accent_color)])
+
+        self.style.configure("TLabelframe", background=self.bg_main, foreground=self.text_color,
+                             bordercolor=self.list_bg)
+        self.style.configure("TLabelframe.Label", background=self.bg_main, foreground=self.accent_color,
+                             font=("Helvetica", 12, "bold"))
+
     def show_login_screen(self):
-        self.login_frame = tk.Frame(self.root)
-        self.login_frame.pack(expand=True)
+        self.login_frame = ttk.Frame(self.root)
+        self.login_frame.pack(expand=True, fill="both", padx=40, pady=40)
 
-        tk.Label(self.login_frame, text="Logowanie do systemu", font=("Arial", 16, "bold")).grid(row=0, column=0,
-                                                                                                 columnspan=2, pady=20)
+        ttk.Label(self.login_frame, text="ARCHIWUM MUZEALNE", font=("Helvetica", 16, "bold"),
+                  foreground=self.accent_color).pack(pady=(0, 20))
 
-        tk.Label(self.login_frame, text="Login:").grid(row=1, column=0, pady=5, padx=5, sticky="e")
-        self.entry_login = tk.Entry(self.login_frame)
-        self.entry_login.grid(row=1, column=1, pady=5, padx=5)
+        ttk.Label(self.login_frame, text="Identyfikator (Login):").pack(anchor="w")
+        self.entry_login = ttk.Entry(self.login_frame, width=40)
+        self.entry_login.pack(pady=(0, 10), fill="x")
 
-        tk.Label(self.login_frame, text="Hasło:").grid(row=2, column=0, pady=5, padx=5, sticky="e")
-        self.entry_haslo = tk.Entry(self.login_frame, show="*")
-        self.entry_haslo.grid(row=2, column=1, pady=5, padx=5)
+        ttk.Label(self.login_frame, text="Kod dostępu (Hasło):").pack(anchor="w")
+        self.entry_haslo = ttk.Entry(self.login_frame, show="*", width=40)
+        self.entry_haslo.pack(pady=(0, 20), fill="x")
 
-        tk.Button(self.login_frame, text="Zaloguj", width=15, command=self.login).grid(row=3, column=0, columnspan=2,
-                                                                                       pady=20)
+        ttk.Button(self.login_frame, text="AUTORYZACJA", command=self.login).pack(fill="x")
 
     def login(self):
         login = self.entry_login.get()
@@ -41,73 +80,80 @@ class MuseumApp:
             self.login_frame.destroy()
             self.show_main_screen()
         else:
-            messagebox.showerror("Błąd", "Nieprawidłowy login lub hasło!")
+            messagebox.showerror("Błąd autoryzacji", "Odmowa dostępu. Nieprawidłowe dane.")
 
     def show_main_screen(self):
-        self.root.geometry("1200x700")
+        self.root.geometry("1300x750")
         self.root.resizable(True, True)
 
         self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill='both', expand=True, padx=10, pady=10)
+        self.notebook.pack(fill='both', expand=True, padx=15, pady=15)
 
         self.tab_muzea = ttk.Frame(self.notebook)
         self.tab_magazyny = ttk.Frame(self.notebook)
         self.tab_pracownicy = ttk.Frame(self.notebook)
 
-        self.notebook.add(self.tab_muzea, text="🏛️ Muzea")
-        self.notebook.add(self.tab_magazyny, text="📦 Magazyny")
-        self.notebook.add(self.tab_pracownicy, text="👥 Pracownicy")
+        self.notebook.add(self.tab_muzea, text=" MUZEA ")
+        self.notebook.add(self.tab_magazyny, text=" MAGAZYNY ZBIORÓW ")
+        self.notebook.add(self.tab_pracownicy, text=" KADRY ")
 
         self.build_muzea_tab()
         self.build_magazyny_tab()
         self.build_pracownicy_tab()
         self.update_comboboxes()
 
+    def create_custom_listbox(self, parent):
+        lb = tk.Listbox(parent, exportselection=False, bg=self.list_bg, fg="white",
+                        selectbackground=self.accent_color, selectforeground="white",
+                        relief="flat", borderwidth=0, highlightthickness=1, highlightbackground=self.bg_panel,
+                        font=("Helvetica", 10))
+        return lb
+
     def build_muzea_tab(self):
-        left_frame = tk.Frame(self.tab_muzea, width=250)
-        left_frame.pack(side="left", fill="y", padx=10, pady=10)
+        left_frame = ttk.Frame(self.tab_muzea, width=280)
+        left_frame.pack(side="left", fill="y", padx=(10, 5), pady=10)
 
-        tk.Label(left_frame, text="Lista Muzeów", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 5))
+        ttk.Label(left_frame, text="Rejestr Muzeów", font=("Helvetica", 12, "bold"), foreground=self.text_color).pack(
+            anchor="w", pady=(0, 5))
 
-        filter_frame = tk.Frame(left_frame)
-        filter_frame.pack(fill="x", pady=5)
-        tk.Label(filter_frame, text="Szukaj:").pack(side="left")
-        self.muzea_search_entry = tk.Entry(filter_frame)
-        self.muzea_search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
+        self.muzea_search_entry = ttk.Entry(left_frame)
+        self.muzea_search_entry.pack(fill="x", pady=5)
         self.muzea_search_entry.bind("<KeyRelease>", self.filter_muzea)
 
-        self.muzea_listbox = tk.Listbox(left_frame, exportselection=False)
+        self.muzea_listbox = self.create_custom_listbox(left_frame)
         self.muzea_listbox.pack(fill="both", expand=True, pady=5)
         self.muzea_listbox.bind("<<ListboxSelect>>", self.on_muzeum_select)
 
-        btn_frame = tk.Frame(left_frame)
-        btn_frame.pack(fill="x")
-        tk.Button(btn_frame, text="Dodaj", command=self.add_muzeum).pack(side="left", expand=True, fill="x", padx=1)
-        tk.Button(btn_frame, text="Zapisz zmiany", command=self.update_muzeum).pack(side="left", expand=True, fill="x",
-                                                                                    padx=1)
-        tk.Button(btn_frame, text="Usuń", command=self.delete_muzeum).pack(side="left", expand=True, fill="x", padx=1)
+        btn_frame = ttk.Frame(left_frame)
+        btn_frame.pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Dodaj", command=self.add_muzeum).pack(side="left", expand=True, fill="x", padx=2)
+        ttk.Button(btn_frame, text="Zapisz", command=self.update_muzeum).pack(side="left", expand=True, fill="x",
+                                                                              padx=2)
+        ttk.Button(btn_frame, text="Usuń", command=self.delete_muzeum).pack(side="left", expand=True, fill="x", padx=2)
 
-        mid_frame = tk.Frame(self.tab_muzea, width=300)
-        mid_frame.pack(side="left", fill="y", padx=10, pady=10)
+        mid_frame = ttk.Frame(self.tab_muzea, width=320)
+        mid_frame.pack(side="left", fill="y", padx=5, pady=10)
         mid_frame.pack_propagate(False)
 
-        tk.Label(mid_frame, text="Formularz Muzeum", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 15))
+        form_frame = ttk.LabelFrame(mid_frame, text=" Karta Obiektu ")
+        form_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-        tk.Label(mid_frame, text="Nazwa:").pack(anchor="w")
-        self.muzeum_nazwa_entry = tk.Entry(mid_frame, width=40)
-        self.muzeum_nazwa_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Nazwa placówki:").pack(anchor="w", padx=10, pady=(15, 2))
+        self.muzeum_nazwa_entry = ttk.Entry(form_frame)
+        self.muzeum_nazwa_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w")
-        self.muzeum_lokalizacja_entry = tk.Entry(mid_frame, width=40)
-        self.muzeum_lokalizacja_entry.pack(pady=(0, 20))
+        ttk.Label(form_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w", padx=10, pady=(0, 2))
+        self.muzeum_lokalizacja_entry = ttk.Entry(form_frame)
+        self.muzeum_lokalizacja_entry.pack(fill="x", padx=10, pady=(0, 25))
 
-        tk.Button(mid_frame, text="Pokaż zasoby muzeum", command=self.show_museum_resources, bg="#d9d9d9").pack(
-            fill="x", pady=5)
+        ttk.Button(form_frame, text="Przeglądaj powiązane zasoby", command=self.show_museum_resources).pack(fill="x",
+                                                                                                            padx=10,
+                                                                                                            pady=5)
 
-        right_frame = tk.Frame(self.tab_muzea)
-        right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+        right_frame = ttk.Frame(self.tab_muzea)
+        right_frame.pack(side="right", fill="both", expand=True, padx=(5, 10), pady=10)
 
-        self.muzea_map = tkintermapview.TkinterMapView(right_frame, corner_radius=5)
+        self.muzea_map = tkintermapview.TkinterMapView(right_frame, corner_radius=12)
         self.muzea_map.pack(fill="both", expand=True)
         self.muzea_map.set_position(52.0693, 19.4803)
         self.muzea_map.set_zoom(6)
@@ -116,55 +162,53 @@ class MuseumApp:
         self.refresh_muzea_map()
 
     def build_magazyny_tab(self):
-        left_frame = tk.Frame(self.tab_magazyny, width=250)
-        left_frame.pack(side="left", fill="y", padx=10, pady=10)
+        left_frame = ttk.Frame(self.tab_magazyny, width=280)
+        left_frame.pack(side="left", fill="y", padx=(10, 5), pady=10)
 
-        tk.Label(left_frame, text="Lista Magazynów", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 5))
+        ttk.Label(left_frame, text="Rejestr Magazynów", font=("Helvetica", 12, "bold")).pack(anchor="w", pady=(0, 5))
 
-        filter_frame = tk.Frame(left_frame)
-        filter_frame.pack(fill="x", pady=5)
-        tk.Label(filter_frame, text="Szukaj:").pack(side="left")
-        self.magazyny_search_entry = tk.Entry(filter_frame)
-        self.magazyny_search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
+        self.magazyny_search_entry = ttk.Entry(left_frame)
+        self.magazyny_search_entry.pack(fill="x", pady=5)
         self.magazyny_search_entry.bind("<KeyRelease>", self.filter_magazyny)
 
-        self.magazyny_listbox = tk.Listbox(left_frame, exportselection=False)
+        self.magazyny_listbox = self.create_custom_listbox(left_frame)
         self.magazyny_listbox.pack(fill="both", expand=True, pady=5)
         self.magazyny_listbox.bind("<<ListboxSelect>>", self.on_magazyn_select)
 
-        btn_frame = tk.Frame(left_frame)
-        btn_frame.pack(fill="x")
-        tk.Button(btn_frame, text="Dodaj", command=self.add_magazyn).pack(side="left", expand=True, fill="x", padx=1)
-        tk.Button(btn_frame, text="Zapisz zmiany", command=self.update_magazyn).pack(side="left", expand=True, fill="x",
-                                                                                     padx=1)
-        tk.Button(btn_frame, text="Usuń", command=self.delete_magazyn).pack(side="left", expand=True, fill="x", padx=1)
+        btn_frame = ttk.Frame(left_frame)
+        btn_frame.pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Dodaj", command=self.add_magazyn).pack(side="left", expand=True, fill="x", padx=2)
+        ttk.Button(btn_frame, text="Zapisz", command=self.update_magazyn).pack(side="left", expand=True, fill="x",
+                                                                               padx=2)
+        ttk.Button(btn_frame, text="Usuń", command=self.delete_magazyn).pack(side="left", expand=True, fill="x", padx=2)
 
-        mid_frame = tk.Frame(self.tab_magazyny, width=300)
-        mid_frame.pack(side="left", fill="y", padx=10, pady=10)
+        mid_frame = ttk.Frame(self.tab_magazyny, width=320)
+        mid_frame.pack(side="left", fill="y", padx=5, pady=10)
         mid_frame.pack_propagate(False)
 
-        tk.Label(mid_frame, text="Formularz Magazynu", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 15))
+        form_frame = ttk.LabelFrame(mid_frame, text=" Karta Magazynu ")
+        form_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-        tk.Label(mid_frame, text="Przypisz do Muzeum:").pack(anchor="w")
-        self.magazyn_muzeum_combo = ttk.Combobox(mid_frame, width=37, state="readonly")
-        self.magazyn_muzeum_combo.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Przynależność (Muzeum):").pack(anchor="w", padx=10, pady=(15, 2))
+        self.magazyn_muzeum_combo = ttk.Combobox(form_frame, state="readonly")
+        self.magazyn_muzeum_combo.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Nazwa Magazynu:").pack(anchor="w")
-        self.magazyn_nazwa_entry = tk.Entry(mid_frame, width=40)
-        self.magazyn_nazwa_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Nazwa obiektu:").pack(anchor="w", padx=10, pady=(0, 2))
+        self.magazyn_nazwa_entry = ttk.Entry(form_frame)
+        self.magazyn_nazwa_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w")
-        self.magazyn_lokalizacja_entry = tk.Entry(mid_frame, width=40)
-        self.magazyn_lokalizacja_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w", padx=10, pady=(0, 2))
+        self.magazyn_lokalizacja_entry = ttk.Entry(form_frame)
+        self.magazyn_lokalizacja_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Dzieła sztuki (np. po przecinku):").pack(anchor="w")
-        self.magazyn_dziela_entry = tk.Entry(mid_frame, width=40)
-        self.magazyn_dziela_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Wykaz dzieł/eksponatów:").pack(anchor="w", padx=10, pady=(0, 2))
+        self.magazyn_dziela_entry = ttk.Entry(form_frame)
+        self.magazyn_dziela_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        right_frame = tk.Frame(self.tab_magazyny)
-        right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+        right_frame = ttk.Frame(self.tab_magazyny)
+        right_frame.pack(side="right", fill="both", expand=True, padx=(5, 10), pady=10)
 
-        self.magazyny_map = tkintermapview.TkinterMapView(right_frame, corner_radius=5)
+        self.magazyny_map = tkintermapview.TkinterMapView(right_frame, corner_radius=12)
         self.magazyny_map.pack(fill="both", expand=True)
         self.magazyny_map.set_position(52.0693, 19.4803)
         self.magazyny_map.set_zoom(6)
@@ -173,60 +217,58 @@ class MuseumApp:
         self.refresh_magazyny_map()
 
     def build_pracownicy_tab(self):
-        left_frame = tk.Frame(self.tab_pracownicy, width=250)
-        left_frame.pack(side="left", fill="y", padx=10, pady=10)
+        left_frame = ttk.Frame(self.tab_pracownicy, width=280)
+        left_frame.pack(side="left", fill="y", padx=(10, 5), pady=10)
 
-        tk.Label(left_frame, text="Lista Pracowników", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 5))
+        ttk.Label(left_frame, text="Wykaz Personelu", font=("Helvetica", 12, "bold")).pack(anchor="w", pady=(0, 5))
 
-        filter_frame = tk.Frame(left_frame)
-        filter_frame.pack(fill="x", pady=5)
-        tk.Label(filter_frame, text="Szukaj:").pack(side="left")
-        self.pracownicy_search_entry = tk.Entry(filter_frame)
-        self.pracownicy_search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
+        self.pracownicy_search_entry = ttk.Entry(left_frame)
+        self.pracownicy_search_entry.pack(fill="x", pady=5)
         self.pracownicy_search_entry.bind("<KeyRelease>", self.filter_pracownicy)
 
-        self.pracownicy_listbox = tk.Listbox(left_frame, exportselection=False)
+        self.pracownicy_listbox = self.create_custom_listbox(left_frame)
         self.pracownicy_listbox.pack(fill="both", expand=True, pady=5)
         self.pracownicy_listbox.bind("<<ListboxSelect>>", self.on_pracownik_select)
 
-        btn_frame = tk.Frame(left_frame)
-        btn_frame.pack(fill="x")
-        tk.Button(btn_frame, text="Dodaj", command=self.add_pracownik).pack(side="left", expand=True, fill="x", padx=1)
-        tk.Button(btn_frame, text="Zapisz zmiany", command=self.update_pracownik).pack(side="left", expand=True,
-                                                                                       fill="x", padx=1)
-        tk.Button(btn_frame, text="Usuń", command=self.delete_pracownik).pack(side="left", expand=True, fill="x",
-                                                                              padx=1)
+        btn_frame = ttk.Frame(left_frame)
+        btn_frame.pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Dodaj", command=self.add_pracownik).pack(side="left", expand=True, fill="x", padx=2)
+        ttk.Button(btn_frame, text="Zapisz", command=self.update_pracownik).pack(side="left", expand=True, fill="x",
+                                                                                 padx=2)
+        ttk.Button(btn_frame, text="Usuń", command=self.delete_pracownik).pack(side="left", expand=True, fill="x",
+                                                                               padx=2)
 
-        mid_frame = tk.Frame(self.tab_pracownicy, width=300)
-        mid_frame.pack(side="left", fill="y", padx=10, pady=10)
+        mid_frame = ttk.Frame(self.tab_pracownicy, width=320)
+        mid_frame.pack(side="left", fill="y", padx=5, pady=10)
         mid_frame.pack_propagate(False)
 
-        tk.Label(mid_frame, text="Formularz Pracownika", font=("Arial", 12, "bold")).pack(anchor="w", pady=(0, 15))
+        form_frame = ttk.LabelFrame(mid_frame, text=" Akta Pracownicze ")
+        form_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-        tk.Label(mid_frame, text="Przypisz do Muzeum:").pack(anchor="w")
-        self.pracownik_muzeum_combo = ttk.Combobox(mid_frame, width=37, state="readonly")
-        self.pracownik_muzeum_combo.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Przydział (Muzeum):").pack(anchor="w", padx=10, pady=(15, 2))
+        self.pracownik_muzeum_combo = ttk.Combobox(form_frame, state="readonly")
+        self.pracownik_muzeum_combo.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Imię:").pack(anchor="w")
-        self.pracownik_imie_entry = tk.Entry(mid_frame, width=40)
-        self.pracownik_imie_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Imię:").pack(anchor="w", padx=10, pady=(0, 2))
+        self.pracownik_imie_entry = ttk.Entry(form_frame)
+        self.pracownik_imie_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Nazwisko:").pack(anchor="w")
-        self.pracownik_nazwisko_entry = tk.Entry(mid_frame, width=40)
-        self.pracownik_nazwisko_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Nazwisko:").pack(anchor="w", padx=10, pady=(0, 2))
+        self.pracownik_nazwisko_entry = ttk.Entry(form_frame)
+        self.pracownik_nazwisko_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w")
-        self.pracownik_lokalizacja_entry = tk.Entry(mid_frame, width=40)
-        self.pracownik_lokalizacja_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Lokalizacja (Miejscowość):").pack(anchor="w", padx=10, pady=(0, 2))
+        self.pracownik_lokalizacja_entry = ttk.Entry(form_frame)
+        self.pracownik_lokalizacja_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        tk.Label(mid_frame, text="Stanowisko:").pack(anchor="w")
-        self.pracownik_stanowisko_entry = tk.Entry(mid_frame, width=40)
-        self.pracownik_stanowisko_entry.pack(pady=(0, 10))
+        ttk.Label(form_frame, text="Stanowisko / Stopień:").pack(anchor="w", padx=10, pady=(0, 2))
+        self.pracownik_stanowisko_entry = ttk.Entry(form_frame)
+        self.pracownik_stanowisko_entry.pack(fill="x", padx=10, pady=(0, 15))
 
-        right_frame = tk.Frame(self.tab_pracownicy)
-        right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+        right_frame = ttk.Frame(self.tab_pracownicy)
+        right_frame.pack(side="right", fill="both", expand=True, padx=(5, 10), pady=10)
 
-        self.pracownicy_map = tkintermapview.TkinterMapView(right_frame, corner_radius=5)
+        self.pracownicy_map = tkintermapview.TkinterMapView(right_frame, corner_radius=12)
         self.pracownicy_map.pack(fill="both", expand=True)
         self.pracownicy_map.set_position(52.0693, 19.4803)
         self.pracownicy_map.set_zoom(6)
@@ -278,7 +320,7 @@ class MuseumApp:
     def show_museum_resources(self):
         selection = self.muzea_listbox.curselection()
         if not selection:
-            messagebox.showinfo("Informacja", "Wybierz muzeum z listy, aby zobaczyć jego zasoby.")
+            messagebox.showinfo("Brak wyboru", "Zaznacz muzeum na liście, aby wyświetlić przypisane do niego zasoby.")
             return
 
         item_text = self.muzea_listbox.get(selection[0])
@@ -287,30 +329,37 @@ class MuseumApp:
         muzeum = next((m for m in self.data["muzea"] if m["id"] == muzeum_id), None)
 
         res_window = tk.Toplevel(self.root)
-        res_window.title(f"Zasoby: {muzeum['nazwa']}")
-        res_window.geometry("800x400")
+        res_window.title(f"Zasoby obiektu: {muzeum['nazwa']}")
+        res_window.geometry("850x450")
+        res_window.configure(bg=self.bg_main)
 
-        mag_frame = tk.Frame(res_window)
-        mag_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
-        tk.Label(mag_frame, text="Przypisane Magazyny i Dzieła", font=("Arial", 11, "bold")).pack(anchor="w")
-        mag_listbox = tk.Listbox(mag_frame)
+        mag_frame = ttk.Frame(res_window)
+        mag_frame.pack(side="left", fill="both", expand=True, padx=15, pady=15)
+        ttk.Label(mag_frame, text="Rejestr Magazynów i Eksponatów", font=("Helvetica", 11, "bold"),
+                  foreground=self.accent_color).pack(anchor="w", pady=(0, 5))
+        mag_listbox = self.create_custom_listbox(mag_frame)
         mag_listbox.pack(fill="both", expand=True)
 
-        prac_frame = tk.Frame(res_window)
-        prac_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
-        tk.Label(prac_frame, text="Przypisani Pracownicy", font=("Arial", 11, "bold")).pack(anchor="w")
-        prac_listbox = tk.Listbox(prac_frame)
+        prac_frame = ttk.Frame(res_window)
+        prac_frame.pack(side="right", fill="both", expand=True, padx=15, pady=15)
+        ttk.Label(prac_frame, text="Wykaz Personelu", font=("Helvetica", 11, "bold"),
+                  foreground=self.accent_color).pack(anchor="w", pady=(0, 5))
+        prac_listbox = self.create_custom_listbox(prac_frame)
         prac_listbox.pack(fill="both", expand=True)
 
         for mag in self.data["magazyny"]:
             if mag["muzeum_id"] == muzeum_id:
                 dziela = mag.get("dziela", "Brak danych")
-                mag_listbox.insert(tk.END, f"{mag['nazwa']} ({mag['lokalizacja']}) - Zbiory: {dziela}")
+                mag_listbox.insert(tk.END, f"{mag['nazwa']} ({mag['lokalizacja']})")
+                mag_listbox.insert(tk.END, f"  ↳ Zbiory: {dziela}")
+                mag_listbox.insert(tk.END, "")
 
         for prac in self.data["pracownicy"]:
             if prac["muzeum_id"] == muzeum_id:
-                stanowisko = prac.get("stanowisko", "Brak stanowiska")
-                prac_listbox.insert(tk.END, f"{prac['imie']} {prac['nazwisko']} - {stanowisko} ({prac['lokalizacja']})")
+                stanowisko = prac.get("stanowisko", "Brak stopnia")
+                prac_listbox.insert(tk.END, f"{prac['imie']} {prac['nazwisko']} ({prac['lokalizacja']})")
+                prac_listbox.insert(tk.END, f"  ↳ Funkcja: {stanowisko}")
+                prac_listbox.insert(tk.END, "")
 
     def get_next_muzeum_id(self):
         if not self.data["muzea"]:
@@ -322,7 +371,7 @@ class MuseumApp:
         lokalizacja = self.muzeum_lokalizacja_entry.get().strip()
 
         if not nazwa or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wszystkie pola!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wszystkie wymagane pola rejestru.")
             return
 
         nowe_id = self.get_next_muzeum_id()
@@ -341,7 +390,7 @@ class MuseumApp:
     def update_muzeum(self):
         selection = self.muzea_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz muzeum z listy do edycji!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze, którą chcesz zaktualizować.")
             return
 
         item_text = self.muzea_listbox.get(selection[0])
@@ -351,7 +400,7 @@ class MuseumApp:
         lokalizacja = self.muzeum_lokalizacja_entry.get().strip()
 
         if not nazwa or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wszystkie pola!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wszystkie wymagane pola rejestru.")
             return
 
         for m in self.data["muzea"]:
@@ -371,7 +420,7 @@ class MuseumApp:
     def delete_muzeum(self):
         selection = self.muzea_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz muzeum z listy do usunięcia!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze do usunięcia.")
             return
 
         item_text = self.muzea_listbox.get(selection[0])
@@ -448,7 +497,7 @@ class MuseumApp:
         dziela = self.magazyn_dziela_entry.get().strip()
 
         if not muzeum_str or not nazwa or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wymagane pola i wybierz muzeum!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wymagane pola i wskaż przydział.")
             return
 
         muzeum_id = int(muzeum_str.split("]")[0][1:])
@@ -470,7 +519,7 @@ class MuseumApp:
     def update_magazyn(self):
         selection = self.magazyny_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz magazyn z listy do edycji!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze, którą chcesz zaktualizować.")
             return
 
         item_text = self.magazyny_listbox.get(selection[0])
@@ -482,7 +531,7 @@ class MuseumApp:
         dziela = self.magazyn_dziela_entry.get().strip()
 
         if not muzeum_str or not nazwa or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wymagane pola i wybierz muzeum!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wymagane pola i wskaż przydział.")
             return
 
         muzeum_id = int(muzeum_str.split("]")[0][1:])
@@ -505,7 +554,7 @@ class MuseumApp:
     def delete_magazyn(self):
         selection = self.magazyny_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz magazyn z listy do usunięcia!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze do usunięcia.")
             return
 
         item_text = self.magazyny_listbox.get(selection[0])
@@ -583,7 +632,7 @@ class MuseumApp:
         stanowisko = self.pracownik_stanowisko_entry.get().strip()
 
         if not muzeum_str or not imie or not nazwisko or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wymagane pola i wybierz muzeum!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wymagane pola i wskaż przydział.")
             return
 
         muzeum_id = int(muzeum_str.split("]")[0][1:])
@@ -607,7 +656,7 @@ class MuseumApp:
     def update_pracownik(self):
         selection = self.pracownicy_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz pracownika z listy do edycji!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze, którą chcesz zaktualizować.")
             return
 
         item_text = self.pracownicy_listbox.get(selection[0])
@@ -620,7 +669,7 @@ class MuseumApp:
         stanowisko = self.pracownik_stanowisko_entry.get().strip()
 
         if not muzeum_str or not imie or not nazwisko or not lokalizacja:
-            messagebox.showwarning("Błąd", "Wypełnij wymagane pola i wybierz muzeum!")
+            messagebox.showwarning("Braki w formularzu", "Wypełnij wymagane pola i wskaż przydział.")
             return
 
         muzeum_id = int(muzeum_str.split("]")[0][1:])
@@ -644,7 +693,7 @@ class MuseumApp:
     def delete_pracownik(self):
         selection = self.pracownicy_listbox.curselection()
         if not selection:
-            messagebox.showwarning("Błąd", "Wybierz pracownika z listy do usunięcia!")
+            messagebox.showwarning("Braki w formularzu", "Zaznacz pozycję w rejestrze do usunięcia.")
             return
 
         item_text = self.pracownicy_listbox.get(selection[0])
